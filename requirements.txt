@@ -1,1 +1,2 @@
 pywin32==304
+nepali-datetime==1.0.7
