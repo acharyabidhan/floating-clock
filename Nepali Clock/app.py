@@ -17,11 +17,11 @@ app.geometry(f'{width}x{height}+{position_right}+{position_top}')
 bgColor = "blue"
 app.config(background="black")
 username = (path.split(path.expanduser('~'))[-1])
-appName = "floating-clock"
-appFolder = f"C:\\bidhanInc\\{appName}"
+# Just extract and put the main folder (which contains .exe and other dependencies) in C drive
+appName = "nep-clock"
+target = f"{appName}\\{appName}.exe"
+wDir = f"C:\\{appName}"
 pythoncom.CoInitialize()    
-target = f"{appFolder}\\app.exe"
-wDir = f"{appFolder}\\app.exe"
 shell = Dispatch("WScript.Shell")
 shortcut = shell.CreateShortCut(f"C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\{appName}.lnk")
 shortcut.Targetpath = target
