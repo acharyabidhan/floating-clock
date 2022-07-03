@@ -82,6 +82,9 @@ darkColor = "black"
 currentClock = "nepali"
 clockMode = "nepali"
 themeNow = darkdetect.theme()
+timeColorIndex = 0
+dateColorIndex = 0
+dayColorIndex = 0
 #Functio to drag the widget around your screen
 def drag(event):
     global currentX, currentY
@@ -96,7 +99,7 @@ def click(event):
 #function to save the current state of the widget in local disk
 #so that everytime it starts, it will apply the previous state
 def savePstate():
-    allDetails = f"{themeNow}\n{currentClock}\n{clockMode}"
+    allDetails = f"{themeNow}\n{currentClock}\n{clockMode}\n{timeColorIndex},{dateColorIndex},{dayColorIndex}"
     pStateFile = open("pstate", "w")
     pStateFile.write(allDetails)
     pStateFile.close()
@@ -145,9 +148,23 @@ def changeMode():
         else:
             clockMode = "nepali"
     savePstate()
+#Function to change cl=olor of the text
+colors = [
+    "#FF0000","#00FFFF","#0000FF","#00008B","#ADD8E6","#800080","#FFFF00","#00FF00","#FF00FF","#FFC0CB",
+    "#808000","#008000","#800000","#A52A2A","#FFA500","#000000","#808080","#C0C0C0","#FFFFFF"
+    ]
+def changeTimeColor():
+    timeLabel.config(foreground=colors[timeColorIndex])
+    savePstate()
+def changeDateColor():
+    dateLabel.config(foreground=colors[dateColorIndex])
+    savePstate()
+def changeDayColor():
+    dayLabel.config(foreground=colors[dayColorIndex])
+    savePstate()
 #Function to get the key event and do the task accordingly
 def keySc(e):
-    global currentX, currentY
+    global currentX, currentY, timeColorIndex, dateColorIndex, dayColorIndex
     key = e.keysym
     increment = 10
     if key == "R" or key == "r":
@@ -171,6 +188,24 @@ def keySc(e):
     elif key == "t" or key == "T":makeTransparent()
     elif key == "m" or key == "M":changeMode()
     elif key == "s" or key == "S":switchClock()
+    elif key == "1":
+        changeTimeColor()
+        if timeColorIndex < 18:
+            timeColorIndex += 1
+        else:
+            timeColorIndex = 0
+    elif key == "2":
+        changeDateColor()
+        if dateColorIndex < 18:
+            dateColorIndex += 1
+        else:
+            dateColorIndex = 0
+    elif key == "3":
+        changeDayColor()
+        if dayColorIndex < 18:
+            dayColorIndex += 1
+        else:
+            dayColorIndex = 0
 #function to convert english numbers to nepali
 def converToNepali(n):
     engNum = str(n)
@@ -224,11 +259,22 @@ if path.isfile("pstate"):
     pStateDetail = open("pstate", "r")
     whatToDo = pStateDetail.readlines()
     pStateDetail.close()
+    try:
+        a = whatToDo[3]
+        a = a.split(",")
+        timeColorIndex = int(a[0])
+        dateColorIndex = int(a[1])
+        dayColorIndex = int(a[2])
+        print(timeColorIndex,dateColorIndex,dayColorIndex)
+    except:
+        timeColorIndex = 0
+        dateColorIndex = 0
+        dayColorIndex = 0
     if whatToDo[1][:-1] == "nepali":
         currentClock = "nepali"
     else:
         currentClock = "english"
-    if whatToDo[2] == "nepali":
+    if whatToDo[2][:-1] == "nepali":
         clockMode = "nepali"
     else:
         clockMode = "english"
@@ -238,6 +284,12 @@ if path.isfile("pstate"):
         darkTheme()
     elif whatToDo[0][:-1] == "Clear":
         makeTransparent()
+    changeTimeColor()
+    changeDateColor()
+    changeDayColor()
+else:
+    savePstate()
+
 #function that does nothing
 def doNothing():pass
 #Setting the pink color as transparent color
