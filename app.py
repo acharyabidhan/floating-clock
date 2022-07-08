@@ -275,7 +275,6 @@ if path.isfile("pstate"):
         timeColorIndex = int(a[0])
         dateColorIndex = int(a[1])
         dayColorIndex = int(a[2])
-        print(timeColorIndex,dateColorIndex,dayColorIndex)
     except:
         timeColorIndex = 0
         dateColorIndex = 0
