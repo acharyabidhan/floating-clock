@@ -81,6 +81,7 @@ lightColor = "white"
 darkColor = "black"
 currentClock = "nepali"
 clockMode = "nepali"
+priority = "yes"
 themeNow = darkdetect.theme()
 timeColorIndex = 0
 dateColorIndex = 0
@@ -162,6 +163,14 @@ def changeDateColor():
 def changeDayColor():
     dayLabel.config(foreground=colors[dayColorIndex])
     savePstate()
+def givePriority():
+    global priority
+    if priority == "yes":
+        app.attributes('-topmost',True)
+        priority = "no"
+    else:
+        priority = "yes"
+        app.attributes('-topmost',False)
 #Function to get the key event and do the task accordingly
 def keySc(e):
     global currentX, currentY, timeColorIndex, dateColorIndex, dayColorIndex
@@ -188,6 +197,7 @@ def keySc(e):
     elif key == "t" or key == "T":makeTransparent()
     elif key == "m" or key == "M":changeMode()
     elif key == "s" or key == "S":switchClock()
+    elif key == "p" or key == "P":givePriority()
     elif key == "1":
         changeTimeColor()
         if timeColorIndex < 18:
