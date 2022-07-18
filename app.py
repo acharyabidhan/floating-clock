@@ -8,8 +8,8 @@ import time, nepali_datetime, pythoncom, darkdetect
 app = Tk()
 app.overrideredirect(True)
 app.resizable(0,0)
-width = 250
-height = 150
+width = 200
+height = 110
 screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
 position_top = 10
@@ -149,20 +149,7 @@ def changeMode():
         else:
             clockMode = "nepali"
     savePstate()
-#Function to change cl=olor of the text
-colors = [
-    "#FF0000","#00FFFF","#0000FF","#00008B","#ADD8E6","#800080","#FFFF00","#00FF00","#FF00FF","#FFC0CB",
-    "#808000","#008000","#800000","#A52A2A","#FFA500","#000000","#808080","#C0C0C0","#FFFFFF"
-    ]
-def changeTimeColor():
-    timeLabel.config(foreground=colors[timeColorIndex])
-    savePstate()
-def changeDateColor():
-    dateLabel.config(foreground=colors[dateColorIndex])
-    savePstate()
-def changeDayColor():
-    dayLabel.config(foreground=colors[dayColorIndex])
-    savePstate()
+#function to pot widget on top of window
 def givePriority():
     global priority
     if priority == "yes":
@@ -198,24 +185,6 @@ def keySc(e):
     elif key == "m" or key == "M":changeMode()
     elif key == "s" or key == "S":switchClock()
     elif key == "p" or key == "P":givePriority()
-    elif key == "1":
-        changeTimeColor()
-        if timeColorIndex < 18:
-            timeColorIndex += 1
-        else:
-            timeColorIndex = 0
-    elif key == "2":
-        changeDateColor()
-        if dateColorIndex < 18:
-            dateColorIndex += 1
-        else:
-            dateColorIndex = 0
-    elif key == "3":
-        changeDayColor()
-        if dayColorIndex < 18:
-            dayColorIndex += 1
-        else:
-            dayColorIndex = 0
 #function to convert english numbers to nepali
 def converToNepali(n):
     engNum = str(n)
@@ -258,27 +227,17 @@ def updateTime():
     dayLabel.config(text=cDay)
     app.after(1000, updateTime)
 #tkinter label objects
-timeLabel = Label(app, font=("arial",30), background=bgColor, foreground=fgColor)
+timeLabel = Label(app, font=("arial",20), background=bgColor, foreground=fgColor)
 timeLabel.place(relx=0.50, rely=0.02, anchor=N)
-dateLabel = Label(app, font=("arial",20), background=bgColor, foreground=fgColor)
+dateLabel = Label(app, font=("arial",15), background=bgColor, foreground=fgColor)
 dateLabel.place(relx=0.50, rely=0.50, anchor=CENTER)
-dayLabel = Label(app, font=("arial",20), background=bgColor, foreground=fgColor)
+dayLabel = Label(app, font=("arial",15), background=bgColor, foreground=fgColor)
 dayLabel.place(relx=0.50, rely=0.90, anchor=S)
 #getting and applying the previous state of the clock and other deatils
 if path.isfile("pstate"):
     pStateDetail = open("pstate", "r")
     whatToDo = pStateDetail.readlines()
     pStateDetail.close()
-    try:
-        a = whatToDo[3]
-        a = a.split(",")
-        timeColorIndex = int(a[0])
-        dateColorIndex = int(a[1])
-        dayColorIndex = int(a[2])
-    except:
-        timeColorIndex = 0
-        dateColorIndex = 0
-        dayColorIndex = 0
     if whatToDo[1][:-1] == "nepali":
         currentClock = "nepali"
     else:
@@ -293,9 +252,6 @@ if path.isfile("pstate"):
         darkTheme()
     elif whatToDo[0][:-1] == "Clear":
         makeTransparent()
-    changeTimeColor()
-    changeDateColor()
-    changeDayColor()
 else:
     savePstate()
 
