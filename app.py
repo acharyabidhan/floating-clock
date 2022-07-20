@@ -4,6 +4,7 @@ from os import path
 from tkinter import Canvas
 from win32com.client import Dispatch
 import time, nepali_datetime, pythoncom, darkdetect
+from win32api import GetMonitorInfo, MonitorFromPoint
 #Geometry management of the widget
 app = Tk()
 app.overrideredirect(True)
@@ -12,6 +13,10 @@ width = 200
 height = 110
 screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
+monitorInfo = GetMonitorInfo(MonitorFromPoint((0,0)))
+screenSize = monitorInfo.get("Monitor")
+taskarHeight = monitorInfo.get("Work")
+windowHeight = screenSize[3] - (screenSize[3] - taskarHeight[3])
 position_top = 10
 position_right = int(screen_width - (width+10))
 app.geometry(f'{width}x{height}+{position_right}+{position_top}')
@@ -170,7 +175,7 @@ def keySc(e):
     elif key == "Up" and currentY > 0:
         currentY = currentY - increment
         app.geometry(f"+{currentX}+{currentY}")
-    elif key == "Down"  and currentY < (screen_height - height):
+    elif key == "Down"  and currentY < (windowHeight - height):
         currentY = currentY + increment
         app.geometry(f"+{currentX}+{currentY}")
     elif key == "Left" and currentX > 0:
@@ -185,6 +190,13 @@ def keySc(e):
     elif key == "m" or key == "M":changeMode()
     elif key == "s" or key == "S":switchClock()
     elif key == "p" or key == "P":givePriority()
+    elif key == "b" or key == "B":blueColor()
+#function to change background color to cool blue
+def blueColor():
+    round_rectangle(0, 0, width, height, radius=50, color="#0059ff")
+    timeLabel.config(background="#0059ff", foreground=lightColor)
+    dateLabel.config(background="#0059ff", foreground=lightColor)
+    dayLabel.config(background="#0059ff", foreground=lightColor)
 #function to convert english numbers to nepali
 def converToNepali(n):
     engNum = str(n)
