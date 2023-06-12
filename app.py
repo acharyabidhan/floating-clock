@@ -88,9 +88,6 @@ currentClock = "nepali"
 clockMode = "nepali"
 priority = "yes"
 themeNow = darkdetect.theme()
-timeColorIndex = 0
-dateColorIndex = 0
-dayColorIndex = 0
 #Functio to drag the widget around your screen
 def drag(event):
     global currentX, currentY
@@ -105,7 +102,7 @@ def click(event):
 #function to save the current state of the widget in local disk
 #so that everytime it starts, it will apply the previous state
 def savePstate():
-    allDetails = f"{themeNow}\n{currentClock}\n{clockMode}\n{timeColorIndex},{dateColorIndex},{dayColorIndex}"
+    allDetails = f"{themeNow}\n{currentClock}\n{clockMode}"
     pStateFile = open("pstate", "w")
     pStateFile.write(allDetails)
     pStateFile.close()
@@ -187,7 +184,7 @@ def showInstructions():
     messagebox.showinfo("Instructions", instructions)
 #Function to get the key event and do the task accordingly
 def keySc(e):
-    global currentX, currentY, timeColorIndex, dateColorIndex, dayColorIndex
+    global currentX, currentY
     key = e.keysym
     increment = 10
     if key == "R" or key == "r":
