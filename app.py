@@ -1,7 +1,7 @@
 #Importing required libraries
 from tkinter import*
 from os import path
-from tkinter import Canvas
+from tkinter import Canvas, messagebox
 from win32com.client import Dispatch
 import time, nepali_datetime, pythoncom, darkdetect
 from win32api import GetMonitorInfo, MonitorFromPoint
@@ -11,14 +11,15 @@ app.overrideredirect(True)
 app.resizable(0,0)
 width = 200
 height = 110
+
 screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
+
 monitorInfo = GetMonitorInfo(MonitorFromPoint((0,0)))
 screenSize = monitorInfo.get("Monitor")
 taskarHeight = monitorInfo.get("Work")
-windowHeight = screenSize[3] - (screenSize[3] - taskarHeight[3])
-position_top = 10
-position_right = int(screen_width - (width+10))
+position_top = (screen_height//2) - (height//2)
+position_right = (screen_width//2) - (width//2)
 app.geometry(f'{width}x{height}+{position_right}+{position_top}')
 #Setting the background anf foreground color
 bgColor = None
@@ -36,17 +37,16 @@ app.config(background=transparentColor)
 ######################################################
 #Variables for creating shortcut
 #The below code creates the shortcut in start menu, so that everytime you logon, it starts the widget
-username = (path.split(path.expanduser('~'))[-1])
-appName = "nep-clock"
-target = f"C:\\{appName}\\{appName}.exe"
-wDir = f"C:\\{appName}"
-######################
-pythoncom.CoInitialize()    
-shell = Dispatch("WScript.Shell")
-shortcut = shell.CreateShortCut(f"C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\{appName}.lnk")
-shortcut.Targetpath = target
-shortcut.WorkingDirectory = wDir
-shortcut.save()
+# username = (path.split(path.expanduser('~'))[-1])
+# appName = "nep-clock"
+# target = f"C:\\{appName}\\{appName}.exe"
+# wDir = f"C:\\{appName}"
+# pythoncom.CoInitialize()    
+# shell = Dispatch("WScript.Shell")
+# shortcut = shell.CreateShortCut(f"C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\{appName}.lnk")
+# shortcut.Targetpath = target
+# shortcut.WorkingDirectory = wDir
+# shortcut.save()
 ######################################################
 #Creating the rectangle with round borders
 def round_rectangle(x1, y1, x2, y2, radius, color, **kwargs):
@@ -117,6 +117,7 @@ def lightTheme():
     timeLabel.config(background=lightColor, foreground=darkColor)
     dateLabel.config(background=lightColor, foreground=darkColor)
     dayLabel.config(background=lightColor, foreground=darkColor)
+    pinLabel.config(background=lightColor, foreground=darkColor)
     savePstate()
 #Function to change the theme to dark
 def darkTheme():
@@ -126,6 +127,7 @@ def darkTheme():
     timeLabel.config(background=darkColor, foreground=lightColor)
     dateLabel.config(background=darkColor, foreground=lightColor)
     dayLabel.config(background=darkColor, foreground=lightColor)
+    pinLabel.config(background=darkColor, foreground=lightColor)
     savePstate()
 #Function to change the theme to transparent
 def makeTransparent():
@@ -135,6 +137,7 @@ def makeTransparent():
     timeLabel.config(background=transparentColor, foreground=lightColor)
     dateLabel.config(background=transparentColor, foreground=lightColor)
     dayLabel.config(background=transparentColor, foreground=lightColor)
+    pinLabel.config(background=transparentColor, foreground=lightColor)
     savePstate()
 #function to switch the clock between AD to BS
 def switchClock():
@@ -159,10 +162,29 @@ def givePriority():
     global priority
     if priority == "yes":
         app.attributes('-topmost',True)
+        pinLabel.config(text="📌")
         priority = "no"
     else:
-        priority = "yes"
         app.attributes('-topmost',False)
+        pinLabel.config(text="")
+        priority = "yes"
+#function to show instructions
+instructions = """
+Use R key to reset position to center.
+Use arrow keys to move across the screen (or click and drag using mouse).
+
+Initial theme will be according to system theme.
+Use D, L, T, B key for Dark mode, Light mode, Transparent, Blue theme respectively.
+
+Use S key to switch between English and Nepali Date.
+Use M key to switch between English and Nepali font (Only in Nepali Date).
+Use P Key to give priority (keep this widget on top of all other apps or remain in the background).
+
+All the changes you've made will be saved automatically.
+All the above keys bindings will work only when the widget is focused.
+"""
+def showInstructions():
+    messagebox.showinfo("Instructions", instructions)
 #Function to get the key event and do the task accordingly
 def keySc(e):
     global currentX, currentY, timeColorIndex, dateColorIndex, dayColorIndex
@@ -175,7 +197,7 @@ def keySc(e):
     elif key == "Up" and currentY > 0:
         currentY = currentY - increment
         app.geometry(f"+{currentX}+{currentY}")
-    elif key == "Down"  and currentY < (windowHeight - height):
+    elif key == "Down"  and currentY < (screen_height - height):
         currentY = currentY + increment
         app.geometry(f"+{currentX}+{currentY}")
     elif key == "Left" and currentX > 0:
@@ -191,12 +213,17 @@ def keySc(e):
     elif key == "s" or key == "S":switchClock()
     elif key == "p" or key == "P":givePriority()
     elif key == "b" or key == "B":blueColor()
+    elif key == "h" or key == "H": showInstructions()
 #function to change background color to cool blue
 def blueColor():
+    global themeNow
+    themeNow = "Blue"
     round_rectangle(0, 0, width, height, radius=50, color="#0059ff")
     timeLabel.config(background="#0059ff", foreground=lightColor)
     dateLabel.config(background="#0059ff", foreground=lightColor)
     dayLabel.config(background="#0059ff", foreground=lightColor)
+    pinLabel.config(background="#0059ff", foreground=lightColor)
+    savePstate()
 #function to convert english numbers to nepali
 def converToNepali(n):
     engNum = str(n)
@@ -218,16 +245,16 @@ def updateTime():
     nepDate = nepali_datetime.date.today()
     nepDate = str(nepDate).split("-")
     nepYear, nepMonth, nepDay = int(nepDate[0]), int(nepDate[1]), int(nepDate[2])
+    cHr = time.strftime("%I")
+    cMin = time.strftime("%M")
+    cSec = time.strftime("%S")
     if clockMode == "nepali" and currentClock == "nepali":
-        cHr = converToNepali(time.strftime("%I"))
-        cMin = converToNepali(time.strftime("%M"))
-        cSec = converToNepali(time.strftime("%S"))
+        cHr = converToNepali(cHr)
+        cMin = converToNepali(cMin)
+        cSec = converToNepali(cSec)
         cDate = nepali_datetime.date(nepYear, nepMonth, nepDay).strftime("%N %D, %K")
         cDay = nepali_datetime.date(nepYear, nepMonth, nepDay).strftime("%G")
     else:
-        cHr = time.strftime("%I")
-        cMin = time.strftime("%M")
-        cSec = time.strftime("%S")
         cDate = nepali_datetime.date(nepYear, nepMonth, nepDay).strftime("%B %d, %Y")
         cDay = time.strftime("%A")
     if currentClock == "english":
@@ -241,6 +268,10 @@ def updateTime():
 #tkinter label objects
 timeLabel = Label(app, font=("arial",20), background=bgColor, foreground=fgColor)
 timeLabel.place(relx=0.50, rely=0.02, anchor=N)
+
+pinLabel = Label(app, font=("arial",15), background=bgColor, foreground=fgColor)
+pinLabel.place(relx=0.95, rely=0.05, anchor=NE)
+
 dateLabel = Label(app, font=("arial",15), background=bgColor, foreground=fgColor)
 dateLabel.place(relx=0.50, rely=0.50, anchor=CENTER)
 dayLabel = Label(app, font=("arial",15), background=bgColor, foreground=fgColor)
@@ -249,6 +280,7 @@ dayLabel.place(relx=0.50, rely=0.90, anchor=S)
 if path.isfile("pstate"):
     pStateDetail = open("pstate", "r")
     whatToDo = pStateDetail.readlines()
+    tcolor = whatToDo[0][:-1]
     pStateDetail.close()
     if whatToDo[1][:-1] == "nepali":
         currentClock = "nepali"
@@ -258,12 +290,14 @@ if path.isfile("pstate"):
         clockMode = "nepali"
     else:
         clockMode = "english"
-    if whatToDo[0][:-1] == "Light":
+    if tcolor == "Light":
         lightTheme()
-    elif whatToDo[0][:-1] == "Dark":
+    elif tcolor == "Dark":
         darkTheme()
-    elif whatToDo[0][:-1] == "Clear":
+    elif tcolor == "Clear":
         makeTransparent()
+    elif tcolor == "Blue":
+        blueColor()
 else:
     savePstate()
 
